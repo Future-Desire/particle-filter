@@ -1,63 +1,66 @@
+import matplotlib.pyplot as plt
 import numpy as np
+
 from Visualization import Visualization
 
-#matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+# matplotlib.use("Agg")
 
 
 class PF(object):
-    """A class for implementing particle filters
+    """
+    A class for implementing particle filters.
 
-        Attributes
-        ----------
-        numParticles : The number of particles to use
-        particles :    A 3 x numParticles array, where each column represents a
-                       particular particle, i.e., particles[:,i] = [x^(i), y^(i), theta^(i)]
-        weights :      An array of length numParticles array, where each entry
-                       denotes the weight of that particular particle
-        Alpha :        Vector of 6 noise coefficients for the motion model
-                       (See Table 5.3 in Probabilistic Robotics)
-        laser :        Instance of the laser class that defines LIDAR params,
-                       observation likelihood, and utils
-        gridmap :      An instance of the Gridmap class that specifies
-                       an occupancy grid representation of the map
-                       where 1: occupied and 0: free
-        visualize:     Boolean variable indicating whether to visualize
-                       the particle filter
+    Attributes
+    ----------
+    numParticles : The number of particles to use
+    particles :    A 3 x numParticles array, where each column represents a
+                    particular particle, i.e., particles[:,i] = [x^(i), y^(i), theta^(i)]
+    weights :      An array of length numParticles array, where each entry
+                    denotes the weight of that particular particle
+    Alpha :        Vector of 6 noise coefficients for the motion model
+                    (See Table 5.3 in Probabilistic Robotics)
+    laser :        Instance of the laser class that defines LIDAR params,
+                    observation likelihood, and utils
+    gridmap :      An instance of the Gridmap class that specifies
+                    an occupancy grid representation of the map
+                    where 1: occupied and 0: free
+    visualize:     Boolean variable indicating whether to visualize
+                    the particle filter
 
 
-        Methods
-        -------
-        sampleParticlesUniform : Samples a set of particles according to a
-                                 uniform distribution
-        sampleParticlesGaussian: Samples a set of particles according to a
-                                 Gaussian distribution over (x,y) and a
-                                 uniform distribution over theta
-        getParticle :            Returns the (x, y, theta) and weight associated
-                                 with a particular particle id.
-        getNormalizedWeights :   Returns the normalized particle weights (numpy.array)
-        getMean :                Queries the sample-based estimate of the mean
-        prediction :             Performs the prediction step
-        update :                 Performs the update step
-        run :                    The main loop of the particle filter
+    Methods
+    -------
+    sampleParticlesUniform : Samples a set of particles according to a
+                                uniform distribution
+    sampleParticlesGaussian: Samples a set of particles according to a
+                                Gaussian distribution over (x,y) and a
+                                uniform distribution over theta
+    getParticle :            Returns the (x, y, theta) and weight associated
+                                with a particular particle id.
+    getNormalizedWeights :   Returns the normalized particle weights (numpy.array)
+    getMean :                Queries the sample-based estimate of the mean
+    prediction :             Performs the prediction step
+    update :                 Performs the update step
+    run :                    The main loop of the particle filter
 
     """
 
     def __init__(self, numParticles, Alpha, laser, gridmap, visualize=True):
-        """Initialize the class
+        """
+        Initialize the class.
 
-            Args
-            ----------
-            numParticles : The number of particles to use
-            Alpha :        Vector of 6 noise coefficients for the motion model
-                           (See Table 5.3 in Probabilistic Robotics)
-            laser :        Instance of the laser class that defines LIDAR params,
-                           observation likelihood, and utils
-            gridmap :      An instance of the Gridmap class that specifies
-                           an occupancy grid representation of the map
-                           here 1: occupied and 0: free
-            visualize:     Boolean variable indicating whether to visualize
-                           the particle filter (optional, default: True)
+        Args:
+        ----------
+        numParticles : The number of particles to use
+        Alpha :        Vector of 6 noise coefficients for the motion model
+                        (See Table 5.3 in Probabilistic Robotics)
+        laser :        Instance of the laser class that defines LIDAR params,
+                        observation likelihood, and utils
+        gridmap :      An instance of the Gridmap class that specifies
+                        an occupancy grid representation of the map
+                        here 1: occupied and 0: free
+        visualize:     Boolean variable indicating whether to visualize
+                        the particle filter (optional, default: True)
         """
         self.numParticles = numParticles
         self.Alpha = Alpha
@@ -78,8 +81,10 @@ class PF(object):
 
     def sampleParticlesUniform(self):
         """
-            Samples the set of particles according to a uniform distribution and
-            sets the weights to 1/numParticles. Particles in collision are rejected
+        Samples the set of particles according to a uniform distribution.
+
+        Samples the set of particles according to a uniform distribution and sets the weights
+        to 1/num Particles. Particles in collision are rejected.
         """
 
         (m, n) = self.gridmap.getShape()
@@ -101,15 +106,14 @@ class PF(object):
 
     def sampleParticlesGaussian(self, x0, y0, sigma):
         """
-            Samples the set of particles according to a Gaussian distribution
-            Orientation are sampled from a uniform distribution
+        Samples the set of particles according to a Gaussian distribution Orientation are sampled from a uniform distribution.
 
-            Args
-            ----------
-            x0 :           Mean x-position
-            y0  :          Mean y-position
-                           (See Table 5.3 in Probabilistic Robotics)
-            sigma :        Standard deviation of the Gaussian
+        Args:
+        ----------
+        x0 :           Mean x-position
+        y0 :           Mean y-position
+                        (See Table 5.3 in Probabilistic Robotics)
+        sigma :        Standard deviation of the Gaussian
         """
 
         (m, n) = self.gridmap.getShape()
@@ -131,16 +135,16 @@ class PF(object):
 
     def getParticle(self, k):
         """
-            Returns desired particle (3 x 1 array) and weight
+        Returns desired particle (3 x 1 array) and weight.
 
-            Args
-            ----------
-            k :   Index of desired particle
+        Args:
+        ----------
+        k :   Index of desired particle
 
-            Returns
-            -------
-            particle :  The particle having index k
-            weight :    The weight of the particle
+        Returns
+        -------
+        particle :  The particle having index k
+        weight :    The weight of the particle
         """
 
         if k < self.particles.shape[1]:
@@ -151,22 +155,22 @@ class PF(object):
 
     def getNormalizedWeights(self):
         """
-            Returns an array of normalized weights
+        Returns an array of normalized weights.
 
-            Returns
-            -------
-            weights :  An array of normalized weights (numpy.array)
+        Returns
+        -------
+        weights :  An array of normalized weights (numpy.array)
         """
 
-        return self.weights/np.sum(self.weights)
+        return self.weights / np.sum(self.weights)
 
     def getMean(self):
         """
-            Returns the mean of the particle filter distribution
+        Returns the mean of the particle filter distribution.
 
-            Returns
-            -------
-            mean :  The mean of the particle filter distribution (numpy.array)
+        Returns
+        -------
+        mean :  The mean of the particle filter distribution (numpy.array)
         """
 
         weights = self.getNormalizedWeights()
@@ -174,13 +178,13 @@ class PF(object):
 
     def render(self, ranges, deltat, XGT):
         """
-            Visualize filtering strategies
+        Visualize filtering strategies.
 
-            Args
-            ----------
-            ranges :   LIDAR ranges (numpy.array)
-            deltat :   Step size
-            XGT :      Ground-truth pose (numpy.array)
+        Args:
+        ----------
+        ranges :   LIDAR ranges (numpy.array)
+        deltat :   Step size
+        XGT :      Ground-truth pose (numpy.array)
         """
 
         self.vis.drawParticles(self.particles)
@@ -193,15 +197,16 @@ class PF(object):
 
     def prediction(self, u, deltat):
         """
-            Implement the proposal step using the motion model based in inputs
-            v (forward velocity) and w (angular velocity) for deltat seconds
+        Implements the prediction step of the particle filter.
 
-            This model corresponds to that in Table 5.3 in Probabilistic Robotics
+        Implement the proposal step using the motion model based in inputs v (forward velocity)
+        and w (angular velocity) for deltat seconds. This model corresponds to that in Table 5.3 in
+        Probabilistic Robotics
 
-            Args
-            ----------
-            u :       Two-vector of control inputs (numpy.array)
-            deltat :  Step size
+        Args:
+        ----------
+        u :       Two-vector of control inputs (numpy.array)
+        deltat :  Step size
         """
 
         # TODO: Your code goes here: Implement the algorithm given in Table 5.3
@@ -220,9 +225,7 @@ class PF(object):
         pass
 
     def resample(self):
-        """
-            Perform resampling with replacement
-        """
+        """Perform resampling with replacement."""
 
         # TODO: Your code goes here
         # The np.random.choice function may be useful
@@ -230,26 +233,27 @@ class PF(object):
 
     def update(self, ranges):
         """
-            Implement the measurement update step
+        Implement the measurement update step.
 
-            Args
-            ----------
-            ranges :    Array of LIDAR ranges (numpy.array)
+        Args:
+        ----------
+        ranges :    Array of LIDAR ranges (numpy.array)
         """
         # TODO: Your code goes here
         pass
-    
+
     def run(self, U, Ranges, deltat, X0, XGT, filename):
         """
-            The main loop that runs the particle filter
+        The main loop that runs the particle filter.
 
-            Args
-            ----------
-            U :      An array of control inputs, one column per time step (numpy.array)
-            Ranges : An array of LIDAR ranges (numpy,array)
-            deltat : Duration of each time step
-            X0 :     The initial pose (may be None) (numpy.array)
-            XGT :    An array of ground-truth poses (may be None) (numpy.array)
+        Args:
+        ----------
+        U :      An array of control inputs, one column per time step (numpy.array)
+        Ranges : An array of LIDAR ranges (numpy,array)
+        deltat : Duration of each time step
+        X0 :     The initial pose (may be None) (numpy.array)
+        XGT :    An array of ground-truth poses (may be None) (numpy.array)
+        filename :  Name of file in which to save the frames (set to None if no frames to be stored)
         """
 
         # TODO: Try different sampling strategies (including different values for sigma)
@@ -267,7 +271,7 @@ class PF(object):
             ranges = Ranges[:, k]
 
             # TODO: Your code goes here
-            
+
             if self.visualize:
                 if XGT is None:
                     self.render(ranges, deltat, None)

@@ -39,6 +39,7 @@ Gridmap.py:
                  falls in an occupied cell
 
 ### The following are parameters for different LIDAR models
+
 ### You can change the LIDAR model by updating Laser.py
 
 #### model 1: "realistic"
@@ -75,6 +76,7 @@ self.zMax = 20;
 self.zMaxEps = 0.02;
 
 ### The following models are not very realistic and are
+
 ### provided in case you want to try them out
 
 #### model 4: always max

@@ -1,42 +1,47 @@
 import numpy as np
-from scipy.stats import norm, expon
+from scipy.stats import expon, norm
+
 
 class Laser(object):
-    """A class specifying a LIDAR beam model based on Section 6.3.1 of Probabilistic Robotics,
-       which is comprised of a mixture of different components, whose parameters are described below.
+    """
+    A class for LIDAR sensors.
 
-       Note that we use pX to denote the weight associated with the X component,
-       whereas the text uses zX to denote the weight
+    A class specifying a LIDAR beam model based on Section 6.3.1 of Probabilistic Robotics,
+    which is comprised of a mixture of different components, whose parameters are described below.
 
-        Attributes
-        ----------
-        pHit :        Likelihood (weight) of getting a valid return (subject to noise)
-        pShort :      Likelihood (weight) of getting a short return
-        pMax :        Likelihood (weight) of getting a false max range return
-        pRand :       Likelihood (weight) of a random range in interval [0, zMax]
-        sigmaHit :    Standard deviation of the Gaussian noise that corrupts true range
-        lambdaShort : Parameter of model determining likelihood of a short return
-                      (e.g., due to an object not in the map)
-        zMax:         Maximum sensor range
-        zMaxEps :
+    Note that we use pX to denote the weight associated with the X component,
+    whereas the text uses zX to denote the weight
+
+    Attributes
+    ----------
+    pHit :        Likelihood (weight) of getting a valid return (subject to noise)
+    pShort :      Likelihood (weight) of getting a short return
+    pMax :        Likelihood (weight) of getting a false max range return
+    pRand :       Likelihood (weight) of a random range in interval [0, zMax]
+    sigmaHit :    Standard deviation of the Gaussian noise that corrupts true range
+    lambdaShort : Parameter of model determining likelihood of a short return
+                    (e.g., due to an object not in the map)
+    zMax:         Maximum sensor range
+    zMaxEps :
 
 
-        Methods
-        -------
-        scanProbability : Computes the likelihood of a given LIDAR scan from
-                          a given pose in a given map
-        getXY :           Function that converts the range and bearing to Cartesian
-                          coordinates in the LIDAR frame
-        rayTracing :      Perform ray tracing from a given pose to predict range and bearing returns
+    Methods
+    -------
+    scanProbability : Computes the likelihood of a given LIDAR scan from
+                        a given pose in a given map
+    getXY :           Function that converts the range and bearing to Cartesian
+                        coordinates in the LIDAR frame
+    rayTracing :      Perform ray tracing from a given pose to predict range and bearing returns
     """
 
     def __init__(self, numBeams=41, sparsity=1):
-        """Initialize the class
+        """
+        Initialize the class.
 
-            Args
-            ----------
-            numBeams :    Number of beams in an individual scan (optional, default: 41)
-            sparsity :    Downsample beams by taking every sparsity-1 beam (optional, default: 1)
+        Args:
+        ----------
+        numBeams :    Number of beams in an individual scan (optional, default: 41)
+        sparsity :    Downsample beams by taking every sparsity-1 beam (optional, default: 1)
         """
         self.pHit = 0.97
         self.pShort = 0.01
@@ -54,19 +59,22 @@ class Laser(object):
         self.exponential = expon(scale=1/self.lambdaShort)
 
     def scanProbability(self, z, x, gridmap):
-        """The following computes the likelihood of a given LIDAR scan from
-           a given pose in the provided map according to the algorithm given
-           in Table 6.1 of Probabilistic Robotics
+        """
+        Computes the likelihood of a given LIDAR scan from a given pose in a given map.
 
-            Args
-            -------
-            z :           An array of LIDAR ranges, one entry per beam (numpy.array)
-            x :           An array specifying the LIDAR (x, y, theta) pose (numpy.array)
-            gridmap :     The map of the environment as a gridmap
+        The following computes the likelihood of a given LIDAR scan from
+        a given pose in the provided map according to the algorithm given
+        in Table 6.1 of Probabilistic Robotics
 
-            Returns
-            -------
-            likelihood :  The probability of the scan.
+        Args:
+        -------
+        z :           An array of LIDAR ranges, one entry per beam (numpy.array)
+        x :           An array specifying the LIDAR (x, y, theta) pose (numpy.array)
+        gridmap :     The map of the environment as a gridmap
+
+        Returns
+        -------
+        likelihood :  The probability of the scan.
         """
 
         # TODO: Your code goes here
@@ -74,19 +82,18 @@ class Laser(object):
         # You are provided with an implementation (albeit slow) of ray tracing below
         pass
 
-
     def getXY(self, range, bearing):
-        """Function that converts the range and bearing to
-           Cartesian coordinates in the LIDAR frame
+        """
+        Function that converts the range and bearing to Cartesian coordinates in the LIDAR frame.
 
-            Args
-            -------
-            range :   A 1 x n array of LIDAR ranges (numpy.ndarray)
-            bearing : A 1 x n array of LIDAR bearings (numpy.ndarray)
+        Args:
+        -------
+        range :   A 1 x n array of LIDAR ranges (numpy.ndarray)
+        bearing : A 1 x n array of LIDAR bearings (numpy.ndarray)
 
-            Returns
-            -------
-            XY :      A 2 x n array, where each column is an (x, y) pair
+        Returns
+        -------
+        XY :      A 2 x n array, where each column is an (x, y) pair
         """
 
         CosSin = np.vstack((np.cos(bearing[:]), np.sin(bearing[:])))
@@ -95,21 +102,22 @@ class Laser(object):
         return XY
 
     def rayTracing(self, xr, yr, thetar, lAngle, gridmap):
-        """A vectorized implementation of ray tracing
+        """
+        A vectorized implementation of ray tracing.
 
-            Args
-            -------
-            (xr, yr, thetar):   The robot's pose
-            lAngle:             The LIDAR angle (in the LIDAR reference frame)
-            gridmap:            An instance of the Gridmap class that specifies
-                                an occupancy grid representation of the map
-                                where 1: occupied and 0: free
-            bearing : A 1 x n array of LIDAR bearings (numpy.ndarray)
+        Args:
+        -------
+        (xr, yr, thetar):   The robot's pose
+        lAngle:             The LIDAR angle (in the LIDAR reference frame)
+        gridmap:            An instance of the Gridmap class that specifies
+                            an occupancy grid representation of the map
+                            where 1: occupied and 0: free
+        bearing : A 1 x n array of LIDAR bearings (numpy.ndarray)
 
-            Returns
-            -------
-            d:                  Range
-            coords:             Array of (x,y) coordinates
+        Returns
+        -------
+        d:                  Range
+        coords:             Array of (x,y) coordinates
         """
 
         angle = np.array(thetar[:, None] + lAngle[None])
