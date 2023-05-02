@@ -39,10 +39,9 @@ Gridmap.py:
                  falls in an occupied cell
 
 ### The following are parameters for different LIDAR models
-
 ### You can change the LIDAR model by updating Laser.py
 
-### model 1: "realistic"
+#### model 1: "realistic"
 
 self.pHit = 0.95;
 self.pShort = 0.02;
@@ -53,7 +52,7 @@ self.lambdaShort = 1;
 self.zMax = 20;
 self.zMaxEps = 0.02;
 
-### model 2: noise free
+#### model 2: noise free
 
 self.pHit = 1.0;
 self.pShort = 0;
@@ -64,7 +63,7 @@ self.lambdaShort = 1;
 self.zMax = 20;
 self.zMaxEps = 0.02;
 
-### model 3: always short
+#### model 3: always short
 
 self.pHit = 0.0;
 self.pShort = 1.0;
@@ -76,10 +75,9 @@ self.zMax = 20;
 self.zMaxEps = 0.02;
 
 ### The following models are not very realistic and are
-
 ### provided in case you want to try them out
 
-### model 4: always max
+#### model 4: always max
 
 self.pHit = 0;
 self.pShort = 0;
@@ -90,7 +88,7 @@ self.lambdaShort = 1;
 self.zMax = 20;
 self.zMaxEps = 0.02;
 
-### model 5: always random
+#### model 5: always random
 
 self.pHit = 0;
 self.pShort = 0;
